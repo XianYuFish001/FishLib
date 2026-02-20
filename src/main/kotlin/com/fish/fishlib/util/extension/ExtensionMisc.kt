@@ -1,0 +1,28 @@
+package com.fish.fishlib.util.extension
+
+import dev.emi.emi.api.recipe.EmiRecipe
+import dev.emi.emi.api.recipe.VanillaEmiRecipeCategories
+
+private typealias UnaryOperator<T> = (T) -> T
+
+//fun <TType : Any> AEItemKey.set(type: DataComponentType<TType>, value: TType): AEItemKey {
+//    val stack = this.toStack()
+//    stack.set(type, value)
+//    return AccessorItemKey.`eaep$newInstance`(stack)
+//}
+//
+//fun <TType : Any> AEItemKey.update(type: DataComponentType<TType>, default: TType, updater: UnaryOperator<TType>): AEItemKey {
+//    val stack = this.toStack()
+//    val value = stack.getOrDefault(type, default)
+//    stack.set(type, updater(value))
+//    return AccessorItemKey.`eaep$newInstance`(stack)
+//}
+//
+//fun CrystalAssemblerRecipeBuilder.input(ingredient: Ingredient, amount: Int): CrystalAssemblerRecipeBuilder {
+//    (this as AccessorBuilderCrystalAssembler).inputs.add(IngredientStack.of(ingredient, amount))
+//    return this
+//}
+
+fun EmiRecipe.isNonProcessing() = this == VanillaEmiRecipeCategories.CRAFTING
+        || this == VanillaEmiRecipeCategories.STONECUTTING
+        || this == VanillaEmiRecipeCategories.SMITHING
