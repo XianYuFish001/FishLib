@@ -140,9 +140,12 @@ publishing {
         }
     }
     repositories {
-        mavenLocal()
         maven {
-            url = uri(project.projectDir.resolve("repo"))
+            url = uri("https://repo.repsy.io/xianyu_fish/fishmaven")
+            credentials {
+                username = project.properties["repsyUsername"] as String
+                password = project.properties["repsyPassword"] as String
+            }
         }
     }
 }
