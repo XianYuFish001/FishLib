@@ -4,7 +4,6 @@ import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.MutableComponent
 import net.minecraft.network.chat.contents.TranslatableContents
 import net.minecraft.world.level.ItemLike
-import java.util.*
 
 open class BuilderGeneric<TBuilder : BuilderGeneric<TBuilder>> internal constructor(
     original: BuilderGeneric<TBuilder>?
@@ -39,35 +38,36 @@ open class BuilderGeneric<TBuilder : BuilderGeneric<TBuilder>> internal construc
         return this.cast()
     }
 
-    fun addStr(keyAdditional: String): TBuilder {
-        if (keyAdditional.isBlank()) return this.cast()
+    fun addStr(keyAdditional: String?): TBuilder {
+        if (keyAdditional.isNullOrBlank()) return this.cast()
         if (!this.keyAdditional.endsWith("."))
             this.keyAdditional += "."
         this.keyAdditional += keyAdditional
         return this.cast()
     }
 
-    fun addStr(condition: Boolean, keyA: String, keyB: String = "") =
+    @JvmOverloads
+    fun addStr(condition: Boolean, keyA: String?, keyB: String? = "") =
         this.addStr(if (condition) keyA else keyB)
 
     fun args(vararg args: Any?): TBuilder {
-        this.args = Arrays.stream(args)
+        this.args = args
             .map {
                 return@map if (it == null) ""
-                else if (!TranslatableContents.isAllowedPrimitiveArgument(it))
-                    it.toString()
-                else it
-            }.toArray()
+                else if (it is Component
+                    || TranslatableContents.isAllowedPrimitiveArgument(it)) it
+                else it.toString()
+            }.toTypedArray()
         return this.cast()
     }
 
-    fun buildRaw() = String.format(this.pattern.pattern, this.keyMain, this.keyAdditional)
+    fun buildRaw() = this.pattern(this.keyMain, this.keyAdditional)
 
     fun build(): MutableComponent {
         val keyRaw = this.buildRaw()
 
         return this.args
-            ?.let { Component.translatable(keyRaw, it) }
+            ?.let { Component.translatable(keyRaw, *it) }
             ?: Component.translatable(keyRaw)
     }
 }

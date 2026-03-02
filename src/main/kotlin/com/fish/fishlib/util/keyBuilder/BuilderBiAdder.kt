@@ -16,7 +16,7 @@ open class BuilderBiAdder<TBuilder : BuilderBiAdder<TBuilder, TKey>, TKey> inter
     fun buildInto(
         keyBranch: TKey,
         customizer: Customizer<MutableComponent> = { it },
-        plain: Boolean
+        plain: Boolean = false
     ): TBuilder {
         this.snapshot()
             .addStr(!plain, keyBranch.toString())

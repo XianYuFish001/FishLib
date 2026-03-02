@@ -4,10 +4,16 @@ import java.util.function.Supplier
 
 fun <T> MutableCollection<T>.addAll(vararg elements: T) = elements.forEach(this::add)
 
-fun <T> T.onlyIf(predicate: T.() -> Boolean) = if (predicate(this)) this else null
+fun <T> List<T>.firstOrNull() = if (this.isEmpty()) null else this[0]
+
+inline fun <T> T?.ifNull(block: () -> T) = this ?: block()
+
+fun <T> T.onlyIf(predicate: (T) -> Boolean) = if (predicate(this)) this else null
 
 @Suppress("unchecked_cast")
 fun <T> Any.cast() = this as T
+
+fun Any?.unit() = Unit
 
 operator fun <T> Supplier<T>.invoke() = this.get()
 
@@ -21,4 +27,12 @@ fun String.splitToLastKey(keyToMatches: String, pattern: String): String {
 
     val remainingParts = parts.subList(keyIndex, parts.size)
     return remainingParts.joinToString(".")
+}
+
+fun String.appendEnd(value: String, acceptsEmpty: Boolean = true): String {
+    return if (this.isEmpty() && !acceptsEmpty)
+        this
+    else if (this.endsWith(value))
+        this
+    else this + value
 }

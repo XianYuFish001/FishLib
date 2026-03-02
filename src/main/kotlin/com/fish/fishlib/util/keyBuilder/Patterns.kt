@@ -21,6 +21,8 @@ enum class Patterns(override val pattern: String) : IKeyPattern {
 
 interface IKeyPattern {
     val pattern: String
+
+    operator fun invoke(vararg args: Any?) = this.pattern.format(*args)
 }
 
 fun String.toKeyPattern() = object : IKeyPattern {

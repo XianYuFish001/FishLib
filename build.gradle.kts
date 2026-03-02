@@ -28,6 +28,7 @@ val parchment_minecraft_version: String by project
 val minecraft_version: String by project
 val minecraft_version_range: String by project
 val neo_version: String by project
+val loader_version_range: String by project
 
 val buildNumber: String? = System.getenv("GITHUB_RUN_NUMBER")
 if (buildNumber != null && System.getenv("BUILD_TYPE") == "snapshot")
@@ -45,7 +46,6 @@ base {
 java {
     toolchain.languageVersion = JavaLanguageVersion.of(21)
     withSourcesJar()
-    withJavadocJar()
 }
 
 neoForge {
@@ -115,6 +115,7 @@ val generateModMetadata by tasks.registering(ProcessResources::class) {
         "mod_name" to mod_name,
         "mod_license" to mod_license,
         "mod_version" to mod_version,
+        "loader_version_range" to loader_version_range
     )
 
     inputs.properties(replaceProperties)
