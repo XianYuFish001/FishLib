@@ -14,8 +14,5 @@ abstract class BuilderSnapshotable<TBuilder : BuilderGeneric<TBuilder>, TTarget>
 
     abstract fun snapshot(): TBuilder
 
-    open fun restore(): TBuilder {
-        if (this.snapshot == null) return this.cast()
-        return this.snapshot!!
-    }
+    open fun restore() = this.snapshot ?: this.cast()
 }

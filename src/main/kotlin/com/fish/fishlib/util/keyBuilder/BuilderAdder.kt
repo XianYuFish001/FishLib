@@ -18,13 +18,10 @@ open class BuilderAdder<TBuilder : BuilderAdder<TBuilder>> internal constructor(
     fun buildInto(
         keyBranch: String = "",
         customizer: Customizer<MutableComponent> = { it }
-    ): TBuilder {
-        this.snapshot()
-            .addStr(keyBranch)
-            .let(BuilderGeneric<TBuilder>::build)
-            .let(customizer)
-            .let(this.target)
-        return this.restore()
+    ) = this.section(keyBranch) { it
+        .let(BuilderGeneric<TBuilder>::build)
+        .let(customizer)
+        .let(this.target)
     }
 
     fun append(text: Component) = this.also {
@@ -33,9 +30,9 @@ open class BuilderAdder<TBuilder : BuilderAdder<TBuilder>> internal constructor(
 
     fun newLine() = this.append(Component.literal("\n"))
 
-    inline fun section(section: String, block: (TBuilder) -> Unit): TBuilder =
-        this.addStr(section)
-            .snapshot()
+    inline fun section(section: String, block: (TBuilder) -> Unit) =
+        this.snapshot()
+            .addStr(section)
             .also(block)
             .restore()
 }
