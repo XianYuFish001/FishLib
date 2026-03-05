@@ -1,17 +1,18 @@
 package com.fish.fishlib.util.keyBuilder
 
 import net.neoforged.neoforge.data.loading.DatagenModLoader
-import java.util.HashMap
 
 class BuilderDataGen internal constructor(
     original: BuilderGeneric<BuilderDataGen>?,
     snapshot: Boolean
 ) : BuilderSnapshotable<BuilderDataGen, Any?>(original, null, snapshot) {
     override fun snapshot(): BuilderDataGen {
-        val builder = BuilderDataGen(this, false)
+        val builder = this.clone()
         builder.snapshot = this
         return builder
     }
+
+    override fun clone() = BuilderDataGen(this, false)
 
     fun buildInto(text: String): BuilderDataGen {
         ContainerDataGen.accept(this.buildRaw(), text)

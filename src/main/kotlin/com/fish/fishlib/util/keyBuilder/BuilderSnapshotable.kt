@@ -9,8 +9,10 @@ abstract class BuilderSnapshotable<TBuilder : BuilderGeneric<TBuilder>, TTarget>
 
     init {
         if (snapshot)
-            this.snapshot()
+            this.snapshot = this.clone()
     }
+
+    protected abstract fun clone(): TBuilder
 
     abstract fun snapshot(): TBuilder
 

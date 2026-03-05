@@ -3,16 +3,18 @@ package com.fish.fishlib.util.keyBuilder
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.MutableComponent
 
-open class BuilderAdder<TBuilder : BuilderAdder<TBuilder>> internal constructor(
+abstract class BuilderAdder<TBuilder : BuilderAdder<TBuilder>> internal constructor(
     original: BuilderGeneric<TBuilder>?,
     target: Adder,
     snapshot: Boolean
 ) : BuilderSnapshotable<TBuilder, Adder>(original, target, snapshot) {
     override fun snapshot(): TBuilder {
-        val builder = BuilderAdder(this, this.target, false).cast()
+        val builder = this.clone()
         builder.snapshot = this.cast()
         return builder
     }
+
+//    override fun clone() = BuilderAdder(this, this.target, false).cast()
 
     @JvmOverloads
     fun buildInto(
