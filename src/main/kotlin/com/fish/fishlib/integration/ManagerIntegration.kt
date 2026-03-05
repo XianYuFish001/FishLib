@@ -39,9 +39,10 @@ abstract class ManagerIntegration(private val modID: String) {
                     val modID = it.annotationData["modID"] as? String ?: return@forEach
                     if (!ModList.get().isLoaded(modID)) return@forEach
 
-                    var clazzPoint = it.annotationData["clazzPoint"] as? KClass<*> ?: return@forEach
-                    if (Nothing::class == clazzPoint)
-                        clazzPoint = clazzBean.superclass.kotlin
+                    var clazzPoint = it.annotationData["clazzPoint"] as? KClass<*>
+                    if (Nothing::class == clazzPoint || clazzPoint == null)
+                        clazzPoint = clazzBean.interfaces.firstOrNull()?.kotlin
+                            ?: clazzBean.superclass.kotlin
                     if (Any::class == clazzPoint || Object::class == clazzPoint)
                         return@forEach
 

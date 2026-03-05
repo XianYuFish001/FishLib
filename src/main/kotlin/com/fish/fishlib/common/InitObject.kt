@@ -11,7 +11,6 @@ import net.neoforged.neoforgespi.language.ModFileScanData
 import org.objectweb.asm.Type
 import org.slf4j.LoggerFactory
 import java.lang.annotation.ElementType
-import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 import kotlin.reflect.full.declaredMemberFunctions
 import kotlin.reflect.full.hasAnnotation
@@ -42,7 +41,6 @@ class InitializerObject(eventBus: IEventBus, containerMod: ModContainer) {
                 .annotations
                 .filter { Type.getType(InitObject::class.java) == it.annotationType }
                 .sortedBy { it.annotationData.getOrDefault("priority", 100) as Int }
-                .toList()
         }
         objects
             .filter {
@@ -71,15 +69,13 @@ class InitializerObject(eventBus: IEventBus, containerMod: ModContainer) {
                     register.register(eventBus)
                 } catch (exception: NoSuchFieldException) {
                     logger.error(
-                        "Failed to load field register {}",
-                        data.clazz().className,
+                        "Failed to load field register ${data.clazz().className}",
                         exception
                     )
                     throw exception
                 } catch (exception: IllegalAccessException) {
                     logger.error(
-                        "Failed to load field register {}",
-                        data.clazz().className,
+                        "Failed to load field register ${data.clazz().className}",
                         exception
                     )
                     throw exception

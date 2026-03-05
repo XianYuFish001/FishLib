@@ -4,8 +4,6 @@ import java.util.function.Supplier
 
 fun <T> MutableCollection<T>.addAll(vararg elements: T) = elements.forEach(this::add)
 
-fun <T> List<T>.firstOrNull() = if (this.isEmpty()) null else this[0]
-
 inline fun <T> T?.ifNull(block: () -> T) = this ?: block()
 
 fun <T> T.onlyIf(predicate: (T) -> Boolean) = if (predicate(this)) this else null
@@ -36,3 +34,5 @@ fun String.appendEnd(value: String, acceptsEmpty: Boolean = true): String {
         this
     else this + value
 }
+
+inline fun Boolean?.ifTrue(block: () -> Unit) = if (this == true) block() else Unit

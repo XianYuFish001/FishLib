@@ -30,11 +30,10 @@ object InitializerPacket {
     internal val Types = HashMap<String, CustomPacketPayload.Type<out PacketGeneric>>()
 
     private val DataStreamCodec by lazy {
-        val clazzTypeCodec = Type.getType(PacketStreamCodec::class.java)
         ModList.get().allScanData
             .asSequence()
             .flatMap(ModFileScanData::getAnnotations)
-            .filter { clazzTypeCodec == it.annotationType }
+            .filter { Type.getType(PacketStreamCodec::class.java) == it.annotationType }
             .mapNotNull {
                 val nameProperty = it.memberName
                     .substringBefore("$")
