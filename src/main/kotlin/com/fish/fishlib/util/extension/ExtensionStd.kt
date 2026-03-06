@@ -13,6 +13,8 @@ fun <T> Any.cast() = this as T
 
 fun Any?.unit() = Unit
 
+fun <T> Any?.unit(unit: T) = unit
+
 operator fun <T> Supplier<T>.invoke() = this.get()
 
 fun <L, R, V> ((L, R) -> V).invokeReversed() = { left: R, right: L -> this(right, left) }

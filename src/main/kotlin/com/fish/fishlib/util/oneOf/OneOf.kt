@@ -1,6 +1,13 @@
-package com.fish.fishlib.util
+package com.fish.fishlib.util.oneOf
 
+import com.fish.fishlib.util.extension.unit
+import com.fish.fishlib.util.oneOf.OneOf2.A
+import com.fish.fishlib.util.oneOf.OneOf2.B
+import com.fish.fishlib.util.oneOf.OneOf3.*
 import com.mojang.datafixers.util.Either
+import com.mojang.serialization.Codec
+import io.netty.buffer.ByteBuf
+import net.minecraft.network.codec.StreamCodec
 
 private fun <T> identity(): (T) -> T = { it }
 
@@ -19,9 +26,9 @@ sealed class OneOf2<A, B> : OneOf {
 
     override fun unwrap() = this.a ?: this.b
 
-    open fun ifA(mapper: (A) -> Unit) = Unit
+    open fun ifA(mapper: (A) -> Unit) = this
 
-    open fun ifB(mapper: (B) -> Unit) = Unit
+    open fun ifB(mapper: (B) -> Unit) = this
 
     open val a: A? = null
 
@@ -43,6 +50,14 @@ sealed class OneOf2<A, B> : OneOf {
         )
 
         fun <A, B> Either<A, B>.oneOf(): OneOf2<A, B> = this.map(::a, ::b)
+
+        fun <A : Any, B : Any> mapCodec(
+            name: String, codecA: Codec<A>, codecB: Codec<B>
+        ) = CodecFieldOneOf2(name, codecA, codecB)
+
+        fun <T : ByteBuf, A : Any, B : Any> streamCodec(
+            codecA: StreamCodec<in T, A>, codecB: StreamCodec<in T, B>
+        ) = StreamCodecOneOf2(codecA, codecB)
     }
 
     class Empty<A, B> internal constructor() : OneOf2<A, B>() {
@@ -56,7 +71,7 @@ sealed class OneOf2<A, B> : OneOf {
 
         override fun <V> flatMap(mapperA: (A) -> V?, mapperB: (B) -> V?) = mapperA(this.value)
 
-        override fun ifA(mapper: (A) -> Unit) = mapper(this.value)
+        override fun ifA(mapper: (A) -> Unit) = mapper(this.value).unit(this)
 
         override val a = this.value
     }
@@ -66,7 +81,7 @@ sealed class OneOf2<A, B> : OneOf {
 
         override fun <V> flatMap(mapperA: (A) -> V?, mapperB: (B) -> V?) = mapperB(this.value)
 
-        override fun ifB(mapper: (B) -> Unit) = mapper(this.value)
+        override fun ifB(mapper: (B) -> Unit) = mapper(this.value).unit(this)
 
         override val b = this.value
     }
@@ -79,11 +94,11 @@ sealed class OneOf3<A, B, C> : OneOf {
 
     override fun unwrap() = this.a ?: this.b ?: this.c
 
-    open fun ifA(mapper: (A) -> Unit) = Unit
+    open fun ifA(mapper: (A) -> Unit) = this
 
-    open fun ifB(mapper: (B) -> Unit) = Unit
+    open fun ifB(mapper: (B) -> Unit) = this
 
-    open fun ifC(mapper: (C) -> Unit) = Unit
+    open fun ifC(mapper: (C) -> Unit) = this
 
     open val a: A? = null
 
@@ -111,6 +126,14 @@ sealed class OneOf3<A, B, C> : OneOf {
         fun <A, B, C> b(value: B?) = if (value == null) empty() else B<A, B, C>(value)
 
         fun <A, B, C> c(value: C?) = if (value == null) empty() else C<A, B, C>(value)
+
+        fun <A : Any, B : Any, C : Any> mapCodec(
+            name: String, codecA: Codec<A>, codecB: Codec<B>, codecC: Codec<C>
+        ) = CodecFieldOneOf3(name, codecA, codecB, codecC)
+
+        fun <T : ByteBuf, A : Any, B : Any, C : Any> streamCodec(
+            codecA: StreamCodec<in T, A>, codecB: StreamCodec<in T, B>, codecC: StreamCodec<in T, C>
+        ) = StreamCodecOneOf3(codecA, codecB, codecC)
     }
 
     class Empty<A, B, C> internal constructor() : OneOf3<A, B, C>() {
@@ -128,7 +151,7 @@ sealed class OneOf3<A, B, C> : OneOf {
 
         override fun <V> flatMap(mapperA: (A) -> V?, mapperB: (B) -> V?, mapperC: (C) -> V?) = mapperA(this.value)
 
-        override fun ifA(mapper: (A) -> Unit) = mapper(this.value)
+        override fun ifA(mapper: (A) -> Unit) = mapper(this.value).unit(this)
 
         override val a = this.value
     }
@@ -140,7 +163,7 @@ sealed class OneOf3<A, B, C> : OneOf {
 
         override fun <V> flatMap(mapperA: (A) -> V?, mapperB: (B) -> V?, mapperC: (C) -> V?) = mapperB(this.value)
 
-        override fun ifB(mapper: (B) -> Unit) = mapper(this.value)
+        override fun ifB(mapper: (B) -> Unit) = mapper(this.value).unit(this)
 
         override val b = this.value
     }
@@ -152,7 +175,7 @@ sealed class OneOf3<A, B, C> : OneOf {
 
         override fun <V> flatMap(mapperA: (A) -> V?, mapperB: (B) -> V?, mapperC: (C) -> V?) = mapperC(this.value)
 
-        override fun ifC(mapper: (C) -> Unit) = mapper(this.value)
+        override fun ifC(mapper: (C) -> Unit) = mapper(this.value).unit(this)
 
         override val c = this.value
     }
