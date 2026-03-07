@@ -11,20 +11,24 @@ import net.minecraft.network.codec.StreamCodec
 
 private fun <T> identity(): (T) -> T = { it }
 
-interface OneOf {
+interface OneOf<I> {
     fun unwrap(): Any?
+
+    fun instance(): I
 
     fun isEmpty() = this.unwrap() == null
 
-    fun ifEmpty(action: () -> Unit) = if (isEmpty()) action() else Unit
+    fun ifEmpty(action: () -> Unit) = (if (isEmpty()) action() else Unit).unit(instance())
 }
 
-sealed class OneOf2<A, B> : OneOf {
+sealed class OneOf2<A, B> : OneOf<OneOf2<A, B>> {
     abstract fun <C, D> map(mapperA: (A) -> C?, mapperB: (B) -> D?): OneOf2<C, D>
 
     open fun <V> flatMap(mapperA: (A) -> V?, mapperB: (B) -> V?): V? = null
 
     override fun unwrap() = this.a ?: this.b
+
+    override fun instance() = this
 
     open fun ifA(mapper: (A) -> Unit) = this
 
@@ -87,12 +91,14 @@ sealed class OneOf2<A, B> : OneOf {
     }
 }
 
-sealed class OneOf3<A, B, C> : OneOf {
+sealed class OneOf3<A, B, C> : OneOf<OneOf3<A, B, C>> {
     abstract fun <D, E, F> map(mapperA: (A) -> D?, mapperB: (B) -> E?, mapperC: (C) -> F?): OneOf3<D, E, F>
 
     open fun <V> flatMap(mapperA: (A) -> V?, mapperB: (B) -> V?, mapperC: (C) -> V?): V? = null
 
     override fun unwrap() = this.a ?: this.b ?: this.c
+
+    override fun instance() = this
 
     open fun ifA(mapper: (A) -> Unit) = this
 

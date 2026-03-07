@@ -24,12 +24,12 @@ open class UtilKeyBuilder(val modID: String) {
         ContainerDataGen.checkEnv()
         this.keyMain = this@UtilKeyBuilder.modID
         this.pattern = pattern
-    }
+    }.snapshot()
 
     open fun dataGen(holder: DeferredHolder<*, *>) = BuilderDataGen(null, false).also {
         ContainerDataGen.checkEnv()
         it.applyMain(holder)
-    }
+    }.snapshot()
 
     private fun BuilderGeneric<*>.applyMain(item: Any) {
         val key = when (item) {

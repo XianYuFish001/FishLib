@@ -1,6 +1,6 @@
 package com.fish.fishlib.util.keyBuilder
 
-abstract class BuilderSnapshotable<TBuilder : BuilderGeneric<TBuilder>, TTarget> internal constructor(
+abstract class BuilderSnapshotable<TBuilder : BuilderSnapshotable<TBuilder, TTarget>, TTarget> internal constructor(
     original: BuilderGeneric<TBuilder>?,
     protected val target: TTarget,
     snapshot: Boolean
@@ -17,4 +17,6 @@ abstract class BuilderSnapshotable<TBuilder : BuilderGeneric<TBuilder>, TTarget>
     abstract fun snapshot(): TBuilder
 
     open fun restore() = this.snapshot ?: this.cast()
+
+    open fun repeat() = this.restore().snapshot()
 }

@@ -1,6 +1,5 @@
 package com.fish.fishlib.util.oneOf
 
-import com.fish.fishlib.util.extension.ifNull
 import com.fish.fishlib.util.extension.unit
 import com.mojang.serialization.*
 import io.netty.buffer.ByteBuf
@@ -91,15 +90,15 @@ class StreamCodecOneOf2<T : ByteBuf, A : Any, B : Any>(
     private val a: StreamCodec<in T, A>,
     private val b: StreamCodec<in T, B>
 ) : StreamCodec<T, OneOf2<A, B>> {
-    override fun encode(buffer: T, input: OneOf2<A, B>) = input.flatMap({
+    override fun encode(buffer: T, input: OneOf2<A, B>) = input.ifEmpty {
+        buffer.writeByte(0)
+    }.flatMap({
         buffer.writeByte(1)
         this.a.encode(buffer, it)
     }, {
         buffer.writeByte(2)
         this.b.encode(buffer, it)
-    }).ifNull {
-        buffer.writeByte(0)
-    }.unit()
+    }).unit()
 
     override fun decode(buffer: T): OneOf2<A, B> = when (buffer.readByte()) {
         0.toByte() -> OneOf2.empty()
@@ -175,7 +174,9 @@ class StreamCodecOneOf3<T : ByteBuf, A : Any, B : Any, C : Any>(
     private val b: StreamCodec<in T, B>,
     private val c: StreamCodec<in T, C>
 ) : StreamCodec<T, OneOf3<A, B, C>> {
-    override fun encode(buffer: T, input: OneOf3<A, B, C>) = input.flatMap({
+    override fun encode(buffer: T, input: OneOf3<A, B, C>) = input.ifEmpty {
+        buffer.writeByte(0)
+    }.flatMap({
         buffer.writeByte(1)
         this.a.encode(buffer, it)
     }, {
@@ -184,9 +185,7 @@ class StreamCodecOneOf3<T : ByteBuf, A : Any, B : Any, C : Any>(
     }, {
         buffer.writeByte(3)
         this.c.encode(buffer, it)
-    }).ifNull {
-        buffer.writeByte(0)
-    }.unit()
+    }).unit()
 
     override fun decode(buffer: T): OneOf3<A, B, C> = when (buffer.readByte()) {
         0.toByte() -> OneOf3.empty()
