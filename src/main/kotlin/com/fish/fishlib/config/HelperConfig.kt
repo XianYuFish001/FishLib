@@ -19,14 +19,14 @@ class HelperConfig(private val spec: KProperty0<ModConfigSpec>) {
     operator fun <T : Any> provideDelegate(thisRef: Any?, property: KProperty<*>) =
         DelegateConfig { configs[property.name.lowercase()] as? ModConfigSpec.ConfigValue<T> }
 
-    fun init(containerMod: ModContainer, path: String = "") {
+    fun init(containerMod: ModContainer, path: String = containerMod.modId) {
         this.spec.isAccessible = true
         val delegate = this.spec.getDelegate() as? DelegateSpec
             ?: throw IllegalArgumentException("Use HelperConfigKt#spec to declare a delegated spec")
         containerMod.registerConfig(
             delegate.type,
             delegate.spec,
-            path.appendEnd("/", false) + delegate.name
+            path.appendEnd("/", false) + delegate.name + ".toml"
         )
     }
 
