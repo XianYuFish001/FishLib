@@ -1,6 +1,6 @@
 package com.fish.fishlib.util
 
-import com.fish.fishlib.util.extension.ifNull
+import com.fish.fishlib.util.extension.orElseGet
 import com.fish.fishlib.util.extension.unit
 import net.minecraft.core.component.DataComponentType
 import net.minecraft.world.item.ItemStack
@@ -32,7 +32,7 @@ fun <T : Comparable<T>> BlockEntity.property(
 fun <T> ItemStack.component(type: DataComponentType<T>, valueDefault: T? = null) = object : ReadWriteProperty<Any?, T> {
     override fun getValue(
         thisRef: Any?, property: KProperty<*>
-    ) = this@component.get(type).ifNull {
+    ) = this@component.get(type).orElseGet {
         check(valueDefault != null) {
             "Cannot ignore default value of nullable component $type"
         }

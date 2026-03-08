@@ -4,12 +4,18 @@ import java.util.function.Supplier
 
 fun <T> MutableCollection<T>.addAll(vararg elements: T) = elements.forEach(this::add)
 
-inline fun <T> T?.ifNull(block: () -> T) = this ?: block()
+inline fun <reified T> Collection<*>.findInstance() = this.find { it is T } as? T
 
-fun <T> T.onlyIf(predicate: (T) -> Boolean) = if (predicate(this)) this else null
+inline fun <T> T?.orElseGet(block: () -> T) = this ?: block()
+
+inline fun <T> T?.ifNull(block: () -> Unit) = if (this == null) block() else Unit
+
+inline fun <T> T.onlyIf(predicate: (T) -> Boolean) = if (predicate(this)) this else null
 
 @Suppress("unchecked_cast")
 fun <T> Any.cast() = this as T
+
+inline fun <reified T> Any.tryCast() = this as? T
 
 fun Any?.unit() = Unit
 

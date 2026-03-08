@@ -1,7 +1,3 @@
-configurations {
-    runtimeClassPath.extendsFrom runtimeOnly
-}
-
 dependencies {
     implementation libs.kotlinForForge
     implementation libs.ae2
