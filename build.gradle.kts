@@ -141,6 +141,7 @@ publishing {
         }
     }
     repositories {
+        mavenLocal()
         maven {
             url = uri("https://repo.repsy.io/xianyu_fish/fishmaven")
             credentials {

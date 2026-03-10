@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package com.fish.fishlib.util.oneOf
 
 import com.fish.fishlib.util.extension.unit

@@ -24,26 +24,28 @@ class BuilderDataGen internal constructor(
             .addStr(keyBranch)
             .buildInto(text)
             .restore()
+
+    inline fun section(section: String, block: (BuilderDataGen) -> Unit) =
+        this.snapshot()
+            .addStr(section)
+            .also(block)
+            .restore()
 }
 
 object ContainerDataGen {
     private val translators = HashMap<String, (String, String) -> Unit>()
     private val locale: ThreadLocal<String> = ThreadLocal.withInitial { "en_us" }
 
-    @JvmStatic
-    fun bind(locale: String, adder: (String, String) -> Unit) {
+    fun with(locale: String, adder: (String, String) -> Unit, task: () -> Unit) {
         this.translators[locale] = adder
         this.locale.set(locale)
-    }
-
-    @JvmStatic
-    fun destroy(locale: String) {
+        task()
         this.translators.remove(locale)
         this.locale.remove()
     }
 
     internal fun checkEnv() = if (!DatagenModLoader.isRunningDataGen())
-        throw IllegalStateException("Cannot use data-only methods outside of the runData phase") else Unit
+        throw IllegalStateException("Cannot call data-only methods outside of the runData phase") else Unit
 
     internal val accept
         get() = this.translators.getOrDefault(
