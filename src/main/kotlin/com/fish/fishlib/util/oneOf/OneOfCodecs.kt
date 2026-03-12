@@ -9,38 +9,6 @@ import io.netty.handler.codec.DecoderException
 import net.minecraft.network.codec.StreamCodec
 import java.util.stream.Stream
 
-//class CodecOneOf2<A, B>(private val a: Codec<A>, private val b: Codec<B>) : Codec<OneOf2<A, B>> {
-//    override fun <T : Any> encode(
-//        input: OneOf2<A, B>,
-//        ops: DynamicOps<T>,
-//        prefix: T
-//    ): DataResult<T> = input.flatMap({
-//        this.a.encode(it, ops, prefix)
-//    }, {
-//        this.b.encode(it, ops, prefix)
-//    }) : DataResult.success(ops.createString("empty"))
-//
-//    override fun <T : Any> decode(
-//        ops: DynamicOps<T>,
-//        input: T
-//    ): DataResult<Pair<OneOf2<A, B>, T>> {
-//        val resultA = this.a.decode(ops, input).map { it.mapFirst { OneOf2.a<A, B>(it) } }
-//        if (resultA.isSuccess) return resultA
-//        val resultB = this.b.decode(ops, input).map { it.mapFirst { OneOf2.b<A, B>(it) } }
-//        if (resultB.isSuccess) return resultB
-//        
-//        return when {
-//            resultA.hasResultOrPartial() -> resultA
-//            resultB.hasResultOrPartial() -> resultB
-//            else -> DataResult.error {
-//                "Failed to parse OneOf2." +
-//                        " A: ${resultA.error().orElseThrow().message()}," +
-//                        " B: ${resultB.error().orElseThrow().message()}"
-//            }
-//        }
-//    }
-//}
-
 class CodecFieldOneOf2<A : Any, B : Any>(
     private val name: String,
     private val a: Codec<A>,

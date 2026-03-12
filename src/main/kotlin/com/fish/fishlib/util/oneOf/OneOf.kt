@@ -2,6 +2,7 @@
 
 package com.fish.fishlib.util.oneOf
 
+import com.fish.fishlib.util.extension.ifTrue
 import com.fish.fishlib.util.extension.unit
 import com.fish.fishlib.util.oneOf.OneOf2.A
 import com.fish.fishlib.util.oneOf.OneOf2.B
@@ -13,14 +14,13 @@ import net.minecraft.network.codec.StreamCodec
 
 private fun <T> identity(): (T) -> T = { it }
 
-interface OneOf<I> {
+interface OneOf<I : OneOf<I>> {
     fun unwrap(): Any?
-
-    fun instance(): I
 
     fun isEmpty() = this.unwrap() == null
 
-    fun ifEmpty(action: () -> Unit) = (if (isEmpty()) action() else Unit).unit(instance())
+    @Suppress("unchecked_cast")
+    fun ifEmpty(action: () -> Unit) = this.isEmpty().ifTrue(action).unit(this as I)
 }
 
 sealed class OneOf2<A, B> : OneOf<OneOf2<A, B>> {
@@ -29,8 +29,6 @@ sealed class OneOf2<A, B> : OneOf<OneOf2<A, B>> {
     open fun <V> flatMap(mapperA: (A) -> V?, mapperB: (B) -> V?): V? = null
 
     override fun unwrap() = this.a ?: this.b
-
-    override fun instance() = this
 
     open fun ifA(mapper: (A) -> Unit) = this
 
@@ -45,7 +43,7 @@ sealed class OneOf2<A, B> : OneOf<OneOf2<A, B>> {
     fun <V> mapB(mapper: (B) -> V) = this.map(identity(), mapper)
 
     companion object {
-        fun <A, B> empty() = Empty<A, B>()
+        fun <A, B> empty(): OneOf2<A, B> = Empty()
 
         fun <A, B> a(value: A?) = if (value == null) empty() else A<A, B>(value)
 
@@ -66,13 +64,13 @@ sealed class OneOf2<A, B> : OneOf<OneOf2<A, B>> {
         ) = StreamCodecOneOf2(codecA, codecB)
     }
 
-    class Empty<A, B> internal constructor() : OneOf2<A, B>() {
+    private class Empty<A, B> : OneOf2<A, B>() {
         override fun <C, D> map(mapperA: (A) -> C?, mapperB: (B) -> D?) = Empty<C, D>()
 
         override fun isEmpty() = true
     }
 
-    class A<A, B> internal constructor(private val value: A) : OneOf2<A, B>() {
+    private class A<A, B>(private val value: A) : OneOf2<A, B>() {
         override fun <C, D> map(mapperA: (A) -> C?, mapperB: (B) -> D?) = a<C, D>(mapperA(this.value))
 
         override fun <V> flatMap(mapperA: (A) -> V?, mapperB: (B) -> V?) = mapperA(this.value)
@@ -82,7 +80,7 @@ sealed class OneOf2<A, B> : OneOf<OneOf2<A, B>> {
         override val a = this.value
     }
 
-    class B<A, B> internal constructor(private val value: B) : OneOf2<A, B>() {
+    private class B<A, B>(private val value: B) : OneOf2<A, B>() {
         override fun <C, D> map(mapperA: (A) -> C?, mapperB: (B) -> D?) = b<C, D>(mapperB(this.value))
 
         override fun <V> flatMap(mapperA: (A) -> V?, mapperB: (B) -> V?) = mapperB(this.value)
@@ -99,8 +97,6 @@ sealed class OneOf3<A, B, C> : OneOf<OneOf3<A, B, C>> {
     open fun <V> flatMap(mapperA: (A) -> V?, mapperB: (B) -> V?, mapperC: (C) -> V?): V? = null
 
     override fun unwrap() = this.a ?: this.b ?: this.c
-
-    override fun instance() = this
 
     open fun ifA(mapper: (A) -> Unit) = this
 
@@ -127,7 +123,7 @@ sealed class OneOf3<A, B, C> : OneOf<OneOf3<A, B, C>> {
     )
 
     companion object {
-        fun <A, B, C> empty() = Empty<A, B, C>()
+        fun <A, B, C> empty(): OneOf3<A, B, C> = Empty()
 
         fun <A, B, C> a(value: A?) = if (value == null) empty() else A<A, B, C>(value)
 
@@ -144,7 +140,7 @@ sealed class OneOf3<A, B, C> : OneOf<OneOf3<A, B, C>> {
         ) = StreamCodecOneOf3(codecA, codecB, codecC)
     }
 
-    class Empty<A, B, C> internal constructor() : OneOf3<A, B, C>() {
+    private class Empty<A, B, C> : OneOf3<A, B, C>() {
         override fun <D, E, F> map(
             mapperA: (A) -> D?, mapperB: (B) -> E?, mapperC: (C) -> F?
         ) = Empty<D, E, F>()
@@ -152,7 +148,7 @@ sealed class OneOf3<A, B, C> : OneOf<OneOf3<A, B, C>> {
         override fun isEmpty() = true
     }
 
-    class A<A, B, C> internal constructor(private val value: A) : OneOf3<A, B, C>() {
+    private class A<A, B, C>(private val value: A) : OneOf3<A, B, C>() {
         override fun <D, E, F> map(
             mapperA: (A) -> D?, mapperB: (B) -> E?, mapperC: (C) -> F?
         ) = a<D, E, F>(mapperA(this.value))
@@ -164,7 +160,7 @@ sealed class OneOf3<A, B, C> : OneOf<OneOf3<A, B, C>> {
         override val a = this.value
     }
 
-    class B<A, B, C> internal constructor(private val value: B) : OneOf3<A, B, C>() {
+    private class B<A, B, C>(private val value: B) : OneOf3<A, B, C>() {
         override fun <D, E, F> map(
             mapperA: (A) -> D?, mapperB: (B) -> E?, mapperC: (C) -> F?
         ) = b<D, E, F>(mapperB(this.value))
@@ -176,7 +172,7 @@ sealed class OneOf3<A, B, C> : OneOf<OneOf3<A, B, C>> {
         override val b = this.value
     }
 
-    class C<A, B, C> internal constructor(private val value: C) : OneOf3<A, B, C>() {
+    private class C<A, B, C>(private val value: C) : OneOf3<A, B, C>() {
         override fun <D, E, F> map(
             mapperA: (A) -> D?, mapperB: (B) -> E?, mapperC: (C) -> F?
         ) = c<D, E, F>(mapperC(this.value))
